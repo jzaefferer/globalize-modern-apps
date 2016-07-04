@@ -1,0 +1,28 @@
+[start with https://en.wikipedia.org/wiki/Globalize ]
+
+[Hello! Thanks for coming! You may have noticed this wikipedia page for Globalize, the JavaScript library I want to talk to you about. I'm mostly showing you this page because I wrote it, and by Wikipedia Standards it must be pretty okay, since no one has tried to delete it, yet. Its good to keep this page in mind, since it provides a nice summary of the project.]
+
+[intro] Hello! Thanks for coming and for giving me a chance to talk about Globalize!
+
+[next] Globalize is a project of the jQuery Foundation, and you probably know some of these other projects. By now, there's a lot more projects, like Esprima, Grunt, Dojo and most recently, Eslint, but 2 years ago, Globalize [next] was still one of six.
+
+[next] Before we get into the project itself, you may wonder: Why should I even be interested in a library about internationalization? I think of internationalization as something similar to accessibility and security: Its often ignored in early stages of projects, but you can make your life and that of your users a lot better by thinking about these pretty early on. Let's look at some examples for the kind of issues you can avoid this way.
+
+[next (format numbers js)] Have you done this Google search before? If so, you may have seen this StackOverflow question [pause, next] and this answer. That's quite a lot of string manipulation, including a bonus regex!
+
+[next (format currencies js)] How about this one? [next] Also a popular question on StackOverflow. [next] Also with a popular answer, also with plenty string manipulation and crazy regular expressions.
+
+[next (intl answer)] But there's also another answer, pointing out a standarized API for JavaScript to address this issue. ECMA-262 is the standard for JavaScript itself, ECMA-402 is the one for internalization in JavaScript. As you can see in the code example, this looks pretty reasonable to use.
+
+[next] With NumberFormat [next] you can specify multiple style, like currency in the previous example, percent, or decimal, the default. [next] There's also a DateTimeFormat, for formatting dates (imagine the StackOverflow questions and answers for that!). [next] And there's the Collator, for localized comparisons. Imagine sorting arabic names programmatically - you need more than comparing ascii characters. [next] So, if there's a standard, why would we still look at a library?
+
+[next] One reason is the browser support. Most notably, Safari on macOS and Mobile Safari on iOS are lacking support. Also note that while Intl is supported on Node.js, it comes with support for English only by default. If you need different locales, you need to re-compile it.
+
+[next] These 3 features are useful, but there's a lot more to internalization, and these are all missing from Intl. [next] Like pluralization, [next] message formatting, [next] relative time formatting, [next] unit formatting [next, next] and more. I'm going to explain later, along with examples, what these are.
+
+[next] So there's still a pretty decent need for libraries. Note the plural, of course there is more than one! [next] While I'm only covering Globalize today, you can find a good overview of libraries in this GitHub repo.
+
+[next] Alright, so what makes Globalize special? These are the three design goals of Globalize.
+Always up-to-date (CLDR as a peer dependency)
+Quick development (declarative code)
+Smallest and fastest bundles (optimization for production)
