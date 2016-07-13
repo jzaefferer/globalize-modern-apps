@@ -255,14 +255,12 @@
 		font-size: 1.1em;
 		margin-bottom:2em;
 	}
-	table.browsersupport th {
+	table.browsersupport th, table.browsersupport td {
 		text-align: center;
+		padding: 0;
+		border: 0;
 		padding-bottom: 1em;
-		vertical-align: bottom
-	}
-	table.browsersupport td {
-		text-align: center;
-		padding-bottom: 1em;
+		vertical-align: bottom;
 	}
 	</style>
 
@@ -438,10 +436,10 @@
 		</table>
 		</section>
 
-		<section>
+		<!-- <section>
 		<img src="images/intl-support.png">
 		<p><a href="http://caniuse.com/#search=intl">caniuse.com/#search=intl</a></p>
-		</section>
+		</section> -->
 
 		<section>
 		<table style="font-size: 85%" class="browsersupport">
@@ -454,7 +452,7 @@
 				<th><i class="logo ie">Internet Explorer</i></th>
 				<th>iOS</th>
 				<th>Android</th>
-				<th>Opera<br>Mobile</th>
+				<th>Opera<br>Mini</th>
 				<th>Node.js</th>
 			</tr>
 			<tr>
@@ -555,7 +553,7 @@
 				<th><i class="logo ie">Internet Explorer</i></th>
 				<th>iOS</th>
 				<th>Android</th>
-				<th>Opera<br>Mobile</th>
+				<th>Opera<br>Mini</th>
 				<th>Node.js</th>
 			</tr>
 			<tr>
@@ -682,13 +680,42 @@
 		<section>
 		<h2><i class="logo globalize">Globalize</i></h2>
 		<ul>
-			<li class="fragment highlight-current-blue">Always up-to-date</li>
+			<li>Always up-to-date</li>
 			<li>As easy to use as jQuery</li>
 			<li>Smallest and fastest bundles</li>
 		</ul>
 		</section>
 
 		<section>
+		<h2>Always up-to-date</h2>
+		</section>
+
+		<section>
+		<h2>CLDR?</h2>
+		<p>Unicode Consortium's Common Locale Data Repository</p>
+		</section>
+
+		<section>
+		<h2>CLDR data</h2>
+		<ul>
+			<li>dates, times, timezones, numbers and currency values</li>
+			<li>languages, scripts, countries and regions, eras, months, weekdays, day periods, timezones, cities, and time units</li>
+			<li>characters used; plural cases; gender of lists; capitalization; rules for sorting &amp; searching; writing direction; transliteration rules; rules for spelling out numbers; rules for segmenting text into graphemes, words, and sentences</li>
+		</ul>
+		</section>
+
+		<section>
+		<h2>CLDR users</h2>
+		<ul>
+			<li>Apple (OS X &amp; applications; iOS; …)</li>
+			<li>Google (Web Search, Chrome, Android, …)</li>
+			<li>IBM (DB2, Lotus, Websphere, Tivoli, Rational, AIX, i/OS, z/OS,…)</li>
+			<li>Microsoft (Windows, Windows Phone, Office, …)</li>
+			<li>ABAS Software, Adobe, Amazon (Kindle), Apache, CERN, Debian Linux, Dell, Eclipse, eBay, Free BSD, Gentoo Linux, HP, Intel, <strong>jQuery</strong>, Library of Congress, Mozilla, OpenOffice, Oracle (Solaris, Java), Perl, Python, SAP, Shutterstock, Software AG, SuSE, Symantec, Twitter, Wikimedia Foundation (Wikipedia); and many more</li>
+		</ul>
+		</section>
+
+		<!-- <section>
 		<p>Library Foo</p>
 		<pre><code data-trim>
 .
@@ -720,6 +747,22 @@
 		</code></pre>
 		<aside class="notes">
 		</aside>
+		</section -->>
+
+		<section>
+		<p>My application</p>
+		<pre><code data-trim>
+package.json:
+{
+    "name": "my-application",
+    "dependencies": {
+        "globalize": "1.x",
+        "cldr-data": "28"
+    }
+}
+		</code></pre>
+		<aside class="notes">
+		</aside>
 		</section>
 
 		<section>
@@ -729,11 +772,25 @@ package.json:
 {
     "name": "my-application",
     "dependencies": {
-        "globalize": "1.x"
-    },
-    "peerDependencies": {
+        "globalize": "1.x", ← has cldr-data as peerDependency
         "cldr-data": "28"
     }
+}
+		</code></pre>
+		<aside class="notes">
+		</aside>
+		</section>
+
+		<section>
+		<p>My application</p>
+		<pre><code data-trim>
+package.json:
+{
+    "name": "my-application",
+    "dependencies": {
+        "globalize": "1.x",
+        "cldr-data": "28" ← you can update this
+    }                        independently from Globalize
 }
 		</code></pre>
 		<aside class="notes">
@@ -750,32 +807,62 @@ package.json:
 		</section>
 
 		<section>
-		<p>My application</p>
+		<p>formatDate, default</p>
 		<pre><code data-trim>
-// Before we can use Globalize, we need to feed it
-// on the appropriate I18n content (Unicode CLDR).
-Globalize.load(
-	require( "cldr-data/main/en/ca-gregorian" ),
-	require( "cldr-data/main/en/dateFields" ),
-	require( "cldr-data/main/en/numbers" ),
-	require( "cldr-data/supplemental/likelySubtags" ),
-	require( "cldr-data/supplemental/timeData" ),
-	require( "cldr-data/supplemental/weekData" )
-);
+var Globalize = require( "globalize" );
+Globalize.load( require( "cldr-data" ).entireSupplemental() );
+Globalize.load( require( "cldr-data" ).entireMainFor( "en", "de" ) );
 
-// Set the default locale.
-Globalize.locale( "en" );
+Globalize("en").formatDate(new Date());
+// > "7/11/2016"
 
-// Use Globalize to format dates.
-Globalize.formatDate( new Date(), { datetime: "medium" } );
+Globalize("de").formatDate(new Date());
+// > "11.7.2016"
 		</code></pre>
 		</section>
 
 		<section>
-		<p>My application</p>
+		<p>formatDate, datetime medium</p>
 		<pre><code data-trim>
-// Use Globalize to format dates.
-Globalize.formatDate( new Date(), { datetime: "medium" } );
+var Globalize = require( "globalize" );
+Globalize.load( require( "cldr-data" ).entireSupplemental() );
+Globalize.load( require( "cldr-data" ).entireMainFor( "en", "de" ) );
+
+Globalize("en").formatDate(new Date(), { datetime: "medium" });
+// > "Jul 11, 2016, 4:36:41 PM"
+
+Globalize("de").formatDate(new Date(), { datetime: "medium" });
+// > "11.07.2016, 16:36:41"
+		</code></pre>
+		</section>
+
+		<section>
+		<p>formatCurrency, default</p>
+		<pre><code data-trim>
+var Globalize = require( "globalize" );
+Globalize.load( require( "cldr-data" ).entireSupplemental() );
+Globalize.load( require( "cldr-data" ).entireMainFor( "en", "de" ) );
+
+Globalize("en").formatCurrency(250, 'EUR');
+// > "€250.00"
+
+Globalize("de").formatCurrency(250, 'EUR');
+// > "250,00 €"
+		</code></pre>
+		</section>
+
+		<section>
+		<p>formatCurrency, name</p>
+		<pre><code data-trim>
+var Globalize = require( "globalize" );
+Globalize.load( require( "cldr-data" ).entireSupplemental() );
+Globalize.load( require( "cldr-data" ).entireMainFor( "en", "de" ) );
+
+Globalize("en").formatCurrency(250, 'EUR', { style: "name" });
+// > "250.00 euros"
+
+Globalize("de").formatCurrency(250, 'EUR', { style: "name" });
+// > "250,00 Euro"
 		</code></pre>
 		</section>
 
@@ -866,14 +953,6 @@ XUA, XXX, YDD, YER, YUD, YUM, YUN, YUR, ZAL, ZAR, ZMK, ZMW, ZRN, ZRZ, ZWD, ZWL, 
 		</section>
 
 		<section>
-		<h3>"July 4"</h3>
-		</section>
-
-		<section>
-		<h3>"07/04"</h3>
-		</section>
-
-		<section>
 		<p>Gregorian calendar translations</p>
 		<pre style="font-size:68%"><code data-trim>
 "Jan" "Feb" "Mar" "Apr" "May" "Jun" "Jul" "Aug" "Sep" "Oct" "Nov" "Dec" "J" "F" "M" "A" "M" "J" "J"
@@ -910,20 +989,79 @@ y" "MMMM – MMMM y" "MMMM y – MMMM y"
 		</section>
 
 		<section>
+		<h3>"July 4"</h3>
+		</section>
+
+		<section>
+		<h3>"07/04"</h3>
+		</section>
+
+		<section>
 		<table class="largegap">
 			<tr>
 				<td><code class="javascript">formatter = Globalize.numberFormatter()</code></td>
-				<td><h3 class="secondary">10 secs</h3></td>
+				<td><h3 class="secondary">2.243ms</h3></td>
 			</tr>
 			<tr>
 				<td><code>formatter( 3.141592 )</code></td>
-				<td><h3 class="secondary">1 sec</h3></td>
+				<td><h3 class="secondary">0.143ms</h3></td>
 			</tr>
 		</table>
 		<aside class="notes">
 		</aside>
 		</section>
+
+		<section>
+		<p>Handlebars precompiler</p>
+		<pre><code data-trim>
+Usage: node ./bin/handlebars [template|directory]...
+
+Options:
+  -f, --output         Output File
+  --map                Source Map File                                                    [string]  [default: undefined]
+  -a, --amd            Exports amd style (require.js)
+  -c, --commonjs       Exports CommonJS style, path to Handlebars module                                 [default: null]
+  -h, --handlebarPath  Path to handlebar.js (only valid for amd-style)                                     [default: ""]
+  -k, --known          Known helpers
+  -o, --knownOnly      Known helpers only
+  -m, --min            Minimize output
+  -n, --namespace      Template namespace                                              [default: "Handlebars.templates"]
+  -s, --simple         Output template function only.
+  -N, --name           Name of passed string templates. Optional if running in a simple mode. Required when operating
+                       on multiple templates.
+  -i, --string         Generates a template from the passed CLI argument.
+                       "-" is treated as a special value and causes stdin to be read for the template value.
+  -r, --root           Template root. Base value that will be stripped from template names.
+  -p, --partial        Compiling a partial template
+  -d, --data           Include data when compiling
+  -e, --extension      Template extension.                                                       [default: "handlebars"]
+  -b, --bom            Removes the BOM (Byte Order Mark) from the beginning of the templates.
+  -v, --version        Prints the current compiler version
+  --help               Outputs this message
+		</code></pre>
+		</section>
+
+		<section>
+		<p>Globalize compiler</p>
+		<pre><code data-trim>
+Usage: globalize-compiler -l LOCALE [-m MESSAGES_FILE] -o DEST_FILE SRC_FILES...
+Example: globalize-compiler -l en -o app-en.js src/*.js
+
+Extracts formatters and parsers statically from the SRC_FILES and generates
+a precompiled bundle into DEST_FILE using LOCALE.
+
+General options:
+  -h, --help                     # Print options and usage.
+  -v, --version                  # Print the version number.
+  -l, --locale LOCALE            # Specify a LOCALE to use in compilation.
+  -c, --cldr CLDR_FILE           # Optional. All necessary CLDR data for given locale (JSON format).
+  -m, --messages MESSAGES_FILE   # Optional. Translation messages for given locale (JSON format).
+  -o, --output DEST_FILE         # Destination JS file, e.g., `app-en.js`.
+		</code></pre>
+		</section>
+
 	</section>
+
 
 	<section class="white" data-background="#ffffff">
 		<section>
@@ -931,36 +1069,35 @@ y" "MMMM – MMMM y" "MMMM y – MMMM y"
 		<p><a href="https://github.com/jquery/globalize/tree/master/examples/app-npm-webpack">examples/app-npm-webpack</a></p>
 		</section>
 
-		<section>
+		<!-- <section>
 		<h2 class="secondary">Demo - BTC as currency code</h2>
-		</section>
+		</section> -->
 
 		<section>
 		<h2 class="secondary">Demo - React.js and ES6</h2>
 		<p><a href="https://github.com/rxaviers/yarsk/tree/react-globalize">yarsk</a></p>
 		</section>
 
-		<section>
+		<!-- <section>
 		<h2 class="secondary">Demo - Globalize + ECMA-402</h2>
 		</section>
 
 		<section>
 		<h2 class="secondary">Demo - Translation Table</h2>
-		</section>
+		</section> -->
 	</section>
 
 	<!-- Thank You -->
 	<section class="white" data-background="#ffffff">
 
-		<section>
+		<!-- <section>
 		<h2>Happy developing</h2>
 		<aside class="notes">
 		</aside>
-		</section>
+		</section> -->
 
 		<section>
-		<h2>Thank You</h2>
-		<h3>Questions?</h3>
+		<h2>Questions?</h2>
 		<p><a href="http://bassistance.de/">Jörn Zaefferer</a></p>
 		<p><a href="http://twitter.com/bassistance">@bassistance</a></p>
 		<p><a href="http://github.com/jzaefferer/">gh:jzaefferer</a></p>

@@ -1,6 +1,4 @@
-[start with https://en.wikipedia.org/wiki/Globalize ]
-
-[Hello! Thanks for coming! You may have noticed this wikipedia page for Globalize, the JavaScript library I want to talk to you about. I'm mostly showing you this page because I wrote it, and by Wikipedia Standards it must be pretty okay, since no one has tried to delete it, yet. Its good to keep this page in mind, since it provides a nice summary of the project.]
+[start with https://en.wikipedia.org/wiki/Globalize don't say anything about it though]
 
 [intro] Hello! Thanks for coming and for giving me a chance to talk about Globalize!
 
@@ -16,13 +14,104 @@
 
 [next] With NumberFormat [next] you can specify multiple style, like currency in the previous example, percent, or decimal, the default. [next] There's also a DateTimeFormat, for formatting dates (imagine the StackOverflow questions and answers for that!). [next] And there's the Collator, for localized comparisons. Imagine sorting arabic names programmatically - you need more than comparing ascii characters. [next] So, if there's a standard, why would we still look at a library?
 
-[next] One reason is the browser support. Most notably, Safari on macOS and Mobile Safari on iOS are lacking support. Also note that while Intl is supported on Node.js, it comes with support for English only by default. If you need different locales, you need to re-compile it.
+[next] One reason is the browser support. Most notably, Safari on macOS and Mobile Safari on iOS are lacking support. Also note that while Intl is supported on Node.js, it comes with support for English only by default. If you need different locales, you need to re-compile it. Who would want to compile binaries for each machine where this is needed?
 
-[next] These 3 features are useful, but there's a lot more to internalization, and these are all missing from Intl. [next] Like pluralization, [next] message formatting, [next] relative time formatting, [next] unit formatting [next, next] and more. I'm going to explain later, along with examples, what these are.
+[next] Also, while these hese 3 features are useful, but there's a lot more to internalization, and these are all missing from ECMA-402. [next] Like pluralization, [next] message formatting, [next] relative time formatting, [next] unit formatting [next, next] and some [next] more [next].
 
-[next] So there's still a pretty decent need for libraries. Note the plural, of course there is more than one! [next] While I'm only covering Globalize today, you can find a good overview of libraries in this GitHub repo.
+[next] So there's still a pretty decent need for libraries. Note the plural, of course there is more than one! [next] While I'm only covering Globalize today, you can find a good overview of libraries in this GitHub repository.
 
-[next] Alright, so what makes Globalize special? These are the three design goals of Globalize.
-Always up-to-date (CLDR as a peer dependency)
-Quick development (declarative code)
-Smallest and fastest bundles (optimization for production)
+[next] Alright, so what makes Globalize special? These are the design goals of Globalize, distilled into 3 short bullet points. I'm going to explain these one by one, and show how they influenced the implementation.
+
+[next, Always up to date] You know the feeling when you run into a bug, find out how to fix it, but then have to update a chain of dependencies in order to get the bug fix into your library or application? The original Globalize implementation had that issue as well, containing a copy of localization data, that had lots of bugs and was hard for users to update and awful for maintainers to deal with. Even before Globalize, jQuery UI had the same issue, with localization data for its datepicker widget. It was incomplete, it was outdated, and it was a pain to maintain.
+
+We never wanted to deal with that issue again, so when we decided to rewrite Globalize on top of CLDR, we also decided to always keep CLDR an external peer dependency. This makes getting started with Globalize a little more complicated than we like, but its an acceptable tradeoff. I'll show you later how we compensate that.
+
+You're likely wondering [next] what's CLDR? CLDR stands for Common Locale Data Repository, a project by the Unicode Consortium. That's the same group that publishes the unicode standard. [next] CLDR is the largest and most extensive standard repository of locale data available, [wait a bit, next] used by pretty much every operating system and endless programming and software platforms. Globalize helped making CLDR available as JSON, and now makes its data usable for JavaScript applications. CLDR has a release every 6 months, and you can start using these new releases without ever having to wait for Globalize to update. Let me show you how that works.
+
+[next, package.json] Usually globalize would have a direct dependency on cldr-data. Since that would make it much harder to have always up to locale data, it's instead a peer dependency [next]. That way, you can update cldr-data whenever you want to. [next, wait]
+
+[next] The 2nd design goal for Globalize is to make development quick and easy, with declarative code. [next] Here's an example for formatting dates in English and German. The 2nd and 3rd line are necessary to load CLDR data. That's the price we pay for a peer dependency. I'll show you later how we can manage this in the browser.
+
+As for the code itself: We can pick the locale on the fly, and call one of the various methods on the result. The formatDate method is passed a new date object, referring to the current day and time. Without any extra arguments, it uses a default date format.
+
+[next] We can also specify a different format. Here a datetime medium format indicates that we want both date and time. For English that means using a 12 hour, AM/PM format for the time, while German uses 24 hours.
+
+[next] The same pattern applies to other methods, like formatCurrency. Here we pass a number as the first argument, and the currency code as the second.
+
+[next] We can also customize this, by using a different style. Note the different conventions for using plural "euros" in English and singular "Euro" in German.
+
+[next, last design goal] Now you know where the data for Globalize comes from and what the basic usage looks like. To finish, let's look at the third goal, smallest and fastest bundles. In other words: optimize for production. This is still essential for using any library in the browser. And with CLDR we have a lot of baggage.
+
+[next] This is a list of currency codes in CLDR. For each locale, there's different variations for each of these.
+
+[next] For example, in the English locale, there's these details for UGX and USD.
+
+[next] There's also data for all the date and calendar related properties, again different in each locale. [next] Loading all of this data all the time isn't practical.
+
+[next] For a month name plus day format like this, we only need the month names for each relevant locale.
+
+[next] Here we don't need any of the names, just the format itself, here number of the month, slash, number of the day.
+
+[next] What's more, creating a number formatter takes a lot more time than actually formatting a number. To illustrate, in a test I did, it took 2.2 milliseconds to create the formatter, and 0.1 milliseconds to use it. Since the formatter doesnt't change at runtime, it makes sense to build it only once, including only the necessary data, and then load only the formatter itself at runtime, without all the compiler code.
+
+If you have used Handlebar's precompiling feature, this should sound familar to you. [next] Globalize has a standalone compiler based on the same idea. [next] This allows us to take several hundred megabytes of CLDR data along with the full Globalize library, and reduce that to a few bytes, along with just the runtime portions of the library.
+
+For both Handlebars and Globalize, using the compiler directly is kinda awkward and error-prone. It should instead be part of a build pipeline, properly automated. While there are plenty build tools for JavaScript, [next -> RIGHT] right now webpack seems to be the best option, so I'd like to show you an example for that. Afterwards, I also want to demonstrate the combination of Globalize, Webpack and React.
+
+----
+
+[globalize/examples/app-npm-webpack$npm start should be running already]
+
+[switch to webpack example tab] I'm going to show you parts of the official globalize-webpack example. Since webpack configuration tends to be a bit complicated, I'm going to skip some of the details. I hope it will give you an idea how it works, so that you can try it out yourself later. What you see here is the example output, we'll get back to this in a moment.
+
+[globalize/examples/app-npm-webpack/package.json] These are the dependencies for this example. CLDR and Globalize, some webpack dependencies, and the globalize-webpack-plugin. This is what integrates the Globalize compiler with webpack, doing all the hard work for us.
+
+[focous on scripts] The two scripts here are for local development and the production build. There's nothing unusal here. The start script uses the webpack-dev-server module, the build script the webpack CLI. Both share the same configuration.
+
+[webpack-config.js] This is where it gets a bit messy. Mostly because this configuration handles both development and production builds. Though having separate configurations would also be annoying, with lots of duplication.
+
+[scroll to GlobalizePlugin] Anyway, the interesting part happens down here. As with other webpack plugins, there's a production flag. developmentLocale tells the plugin which locale to load during development. supportedLocales tells it which locales we want to compile. Only these will make it into our production build. [messages key] messages tells the plugin where to find json files with custom translations. Finally the output key tells the plugin how to name the final files for each locale.
+
+[app/index.js] So what does the application code itself look like? Here we require Globalize. Webpack will resolve this import and all its dependencies for us. We can then create various formatters and use them. Here the output is added to DOM elements. This could instead use jQuery or a web framework like Angular, Ember or React.
+
+[scroll to setInterval] Since we created the formatters once, we can then call these again and again, here in a timer.
+
+[index-template.html, scroll to id=demo] In this example, the DOM elements already exist in the HTML file. That's what the app then uses to render its output.
+
+[back to browser] And that's the output of it all. A few formatters, and a few message formats, also using these formatters.
+
+[CLI, stop npm-start, run `npm run build`, `open dist/index.html`] And this is how we go from development build to production build.
+
+[show the dist folder in DaisyDisk] Before gzip, that's 4kb for the html and app.js, 24kb vendor and 37kb for all localization data, with 4 to 8 kb per locale. Can you guess why the arabic and russian files are twice as big as the others? [wait] My guess: Cyrillic and arabic need 4 bytes per character, compared to the 2 bytes per character for "latin" locales.
+
+[go to yarks/globalize tab] Finally, I want to show you an example for using Globalize together with Webpack and React. For that, I wanted to use this react starter kit, but its a bit too complicated for a quick demo. So instead I'm going to show you example from a project I'm working on, which also uses Globalize with React and Webpack.
+
+[open http://localhost:8080/account/upgrade, scroll to "Next billing date"] See this date here? This is formatted using Globalize
+
+[switch to editor, open account-billing.jsx, search for "next billing date"] The date being formatted comes from the subscription model. If we want to change the format, we can change the formatter
+
+[go to definition of dateFormatter] Here I could change the date format from medium to long [edit, show result in browser] Or switch from date to datetime, in case the exact time turns out to be important here [edit, show]
+
+[back to editor, one line up] Here you can also see the formatter used for the currency values on this page. We could change this to a different style, like 'code' [edit/show/] or 'name' [edit/show] Or we could switch the currency itself [replace EUR with USD].
+
+[back to browser] You may have noticed that the number format here is using a comma as a decimal separator, and the currency symbol follows the number value, as usual in Germany, but not in the UK or the US. That's possible thanks to CLDR supporting a locale for English as spoken in Germany. So the number and currency formats are as we expect them, but for example the month names are in English. I think that's a great example for CLDR's comprehensiveness.
+
+And with that I'd like to open it up for questions.
+
+If there are none:
+* Do you consider using Globalize in your next project? If not, why?
+* What alternative have you tried or used? What problems have you run into with them?
+* If you've tried or used Globalize, what are you missing?
+
+---
+
+Audience Questions/Comments
+
+* react-intl works fine, why not use that?
+	-> no parsing, no relative time or units (right?).
+	* Probably less flexible in updating CLDR, thanks for ecma-402 polyfill hardcoding CLDR data (right?).
+	* Check the bundle size
+* momentjs is popular, but only does date and time
+* how can you validate values with Globalize? Show example from jQuery Validation Globalize, try to parse and see if result is a number
+
+Need to simplify the webpack example config, at least make the ChunkPathPlugin work. Could then demo how vendor bundle shrinks as we use less Globalize features. Can FormatJS do THAT?
