@@ -14,15 +14,15 @@
 
 	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
-	<link rel="stylesheet" href="node_modules/reveal.js/css/reveal.css">
-	<link rel="stylesheet" href="node_modules/reveal.js/css/theme/night.css" id="theme">
+	<link rel="stylesheet" href="vendor/reveal.js/css/reveal.css">
+	<link rel="stylesheet" href="vendor/reveal.js/css/theme/night.css" id="theme">
 
 	<!--
-	<link rel="stylesheet" href="node_modules/reveal.js/css/print/pdf.css" id="theme">
+	<link rel="stylesheet" href="vendor/reveal.js/css/print/pdf.css" id="theme">
 	-->
 
 	<!-- For syntax highlighting -->
-	<link rel="stylesheet" href="node_modules/highlight.js/src/styles/github.css">
+	<link rel="stylesheet" href="vendor/highlight.js/src/styles/github.css">
 
 	<style type="text/css">
 	/* Quick overrides */
@@ -266,7 +266,7 @@
 
 	<!-- If the query includes 'print-pdf', use the PDF print sheet -->
 	<script>
-		document.write( '<link rel="stylesheet" href="node_modules/reveal.js/css/print/' + ( window.location.search.match( /print-pdf/gi ) ? 'pdf' : 'paper' ) + '.css" type="text/css" media="print">' );
+		document.write( '<link rel="stylesheet" href="vendor/reveal.js/css/print/' + ( window.location.search.match( /print-pdf/gi ) ? 'pdf' : 'paper' ) + '.css" type="text/css" media="print">' );
 	</script>
 
 	<!--[if lt IE 9]>
@@ -1237,9 +1237,9 @@ General options:
 	</div>
 	</div>
 
-	<script src="./node_modules/jquery/dist/jquery.js"></script>
-	<script src="./node_modules/reveal.js/js/reveal.js"></script>
-	<script src="./node_modules/reveal.js/lib/js/head.min.js"></script>
+	<script src="vendor/jquery/dist/jquery.js"></script>
+	<script src="vendor/reveal.js/js/reveal.js"></script>
+	<script src="vendor/reveal.js/lib/js/head.min.js"></script>
 
 	<script>
 
@@ -1256,10 +1256,10 @@ General options:
 
 			// Optional libraries used to extend on reveal.js
 			dependencies: [
-				{ src: 'node_modules/reveal.js/lib/js/classList.js', condition: function() { return !document.body.classList; } },
-				{ src: 'node_modules/reveal.js/plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } },
-				{ src: 'node_modules/reveal.js/plugin/zoom-js/zoom.js', async: true, condition: function() { return !!document.body.classList; } },
-				{ src: 'node_modules/reveal.js/plugin/notes/notes.js', async: true, condition: function() { return !!document.body.classList; } }
+				{ src: 'vendor/reveal.js/lib/js/classList.js', condition: function() { return !document.body.classList; } },
+				{ src: 'vendor/reveal.js/plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } },
+				{ src: 'vendor/reveal.js/plugin/zoom-js/zoom.js', async: true, condition: function() { return !!document.body.classList; } },
+				{ src: 'vendor/reveal.js/plugin/notes/notes.js', async: true, condition: function() { return !!document.body.classList; } }
 			]
 		});
 

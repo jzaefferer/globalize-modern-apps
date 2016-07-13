@@ -5,5 +5,8 @@
     "highlight.js": "isagalaev/highlight.js",
     "jquery": "2.x",
     "reveal.js": "3.3.0"
+  },
+  "scripts": {
+    "build": "mkdir -p vendor && cp -R node_modules/reveal.js vendor/ && cp -R node_modules/highlight.js vendor/ && cp -R node_modules/jquery vendor/"
   }
 }
